@@ -58,7 +58,7 @@ local function EventHandler()
   end
 end
 
-local function showTimers()
+function showTimers(sec)
   local now = time()
   if tsize(lockoutDB) > 0 then
     print("Instance lockout timers:")
@@ -67,8 +67,8 @@ local function showTimers()
       local rem = now - started
       if rem > 3600 then
         lockoutDB[k] = nil
-      else
-        print(character .. "'s " .. instance .. " @ " .. date("%H:%M:%S",started) .. ", wait: " .. date("%Mm%Ss",3600-rem))
+      elseif rem <= sec then
+        print(character .. "'s " .. instance .. " @ " .. date("%H:%M:%S",started) .. ", wait: " .. date("%Mm%Ss",sec-rem))
       end
     end
   else
@@ -82,7 +82,7 @@ local function handleCommands(msg,editbox)
   elseif msg ~= "" then
     print("Type /its del to remove the latest timestamp.")
   else
-    showTimers()
+    showTimers(3600)
   end
 end
 
