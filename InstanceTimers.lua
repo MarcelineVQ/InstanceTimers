@@ -58,18 +58,30 @@ local function EventHandler()
   end
 end
 
-local function showTimers()
+local function clearExpired(time,duration)
+  local a = {}
+  for k,v in pairs(lockoutDB) do
+    local started = v[3]
+    local rem = time - started
+    -- if rem > duration then lockoutDB[k] = nil end
+    if rem > duration then lockoutDB[k] = nil else tinsert(a,v) end
+  end
+  lockoutDB = a
+
+  -- for k,v in pairs(lockoutDB)
+end
+
+-- move to use servertime somehow
+
+local function showTimers(duration)
   local now = time()
+  clearExpired(now,duration)
   if tsize(lockoutDB) > 0 then
     print("Instance lockout timers:")
     for k,v in pairs(lockoutDB) do
       local character,instance,started = v[1],v[2],v[3]
       local rem = now - started
-      if rem > 3600 then
-        lockoutDB[k] = nil
-      else
-        print(character .. "'s " .. instance .. " @ " .. date("%H:%M:%S",started) .. ", wait: " .. date("%Mm%Ss",3600-rem))
-      end
+      print(character .. "'s " .. instance .. " @ " .. date("%H:%M:%S",started) .. ", wait: " .. date("%Mm%Ss",duration-rem))
     end
   else
     print("You have no instance lockout timers.")
@@ -82,7 +94,7 @@ local function handleCommands(msg,editbox)
   elseif msg ~= "" then
     print("Type /its del to remove the latest timestamp.")
   else
-    showTimers()
+    showTimers(3600)
   end
 end
 
