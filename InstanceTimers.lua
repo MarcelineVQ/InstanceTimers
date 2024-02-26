@@ -55,23 +55,22 @@ local function EventHandler()
     if IsInInstance() then
       tinsert(lockoutDB,{UnitName("player"),zonename,time()})
     end
+  elseif event == "ADDON_LOADED" then
+    if not lockoutDB then lockoutDB = {} end
+    InstanceTimers:UnregisterEvent("ADDON_LOADED")
   end
 end
 
+-- Clear expired entries over a certain duration and make new array keys
 local function clearExpired(time,duration)
   local a = {}
   for k,v in pairs(lockoutDB) do
     local started = v[3]
     local rem = time - started
-    -- if rem > duration then lockoutDB[k] = nil end
     if rem > duration then lockoutDB[k] = nil else tinsert(a,v) end
-  end
+  end -- ^ lockout isnt doing anything here
   lockoutDB = a
-
-  -- for k,v in pairs(lockoutDB)
 end
-
--- move to use servertime somehow
 
 local function showTimers(duration)
   local now = time()
@@ -88,6 +87,7 @@ local function showTimers(duration)
   end
 end
 
+-- add a command to show raid lockouts easily too
 local function handleCommands(msg,editbox)
   if msg == "del" or msg == "delete" or msg == "rem" or msg == "remove" then
     tremove(lockoutDB)
@@ -99,6 +99,7 @@ local function handleCommands(msg,editbox)
 end
 
 InstanceTimers:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+InstanceTimers:RegisterEvent("ADDON_LOADED")
 InstanceTimers:SetScript("OnEvent", EventHandler)
 
 SLASH_INSTANCETIMERS1 = "/instancetimers";
