@@ -80,7 +80,7 @@ local function showTimers(duration)
     for k,v in pairs(lockoutDB) do
       local character,instance,started = v[1],v[2],v[3]
       local rem = now - started
-      print(character .. "'s " .. instance .. " @ " .. date("%H:%M:%S",started) .. ", wait: " .. date("%Mm%Ss",duration-rem))
+      print(k .. ": " .. character .. "'s " .. instance .. " @ " .. date("%H:%M:%S",started) .. ", wait: " .. date("%Mm%Ss",duration-rem))
     end
   else
     print("You have no instance lockout timers.")
@@ -88,6 +88,9 @@ local function showTimers(duration)
 end
 
 -- add a command to show raid lockouts easily too
+-- I need to account to logging into a raid instance too
+-- some kind of 'from world' variable that if set precludes adding more
+-- also if it's a saved it it shouln't count towards the limit
 local function handleCommands(msg,editbox)
   if msg == "del" or msg == "delete" or msg == "rem" or msg == "remove" then
     tremove(lockoutDB)
