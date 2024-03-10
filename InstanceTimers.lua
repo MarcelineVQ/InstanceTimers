@@ -67,7 +67,8 @@ local function clearExpired(time,duration)
   for k,v in pairs(lockoutDB) do
     local started = v[3]
     local rem = time - started
-    if rem > duration then lockoutDB[k] = nil else tinsert(a,v) end
+    if rem < duration then tinsert(a,v) end
+    -- if rem > duration then lockoutDB[k] = nil else tinsert(a,v) end
   end -- ^ lockout isnt doing anything here
   lockoutDB = a
 end

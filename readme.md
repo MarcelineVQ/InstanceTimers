@@ -16,3 +16,5 @@ A limitation of the 1.12 client is that you can't know if your instance entrance
 /its rem
 /its remove
 ```
+
+* This addon is made by and for `Weird Vibes` of Turtle WoW.  
