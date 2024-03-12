@@ -2,5 +2,5 @@
 ## Title: Instance Timers
 ## Notes: Tracks your 5 instance lockouts for you.
 ## Author: ehawne
-## SavedVariables:lockoutDB
+## SavedVariables: InstanceTimersDB
 InstanceTimers.lua
