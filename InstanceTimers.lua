@@ -135,58 +135,59 @@ local function EventHandler()
   --     its_print("info updated outside instance")
   --     print(zone_name)
   --   end
-  if event == "ZONE_CHANGED_NEW_AREA" and not IsInInstance() then
-    if not UnitIsGhost("player") then
-      debug_print("not a ghost and not in an instance")
-      InstanceTimersDB.in_instance[UnitName("player")] = nil
-    end
-    if max(GetNumPartyMembers(),GetNumRaidMembers()) == 0 then
-      debug_print("zc group dropped")
-      group_dropped = true -- this might be an issue for single-member raid entries like flask making?
-    end
-  elseif event == "RAID_TARGET_UPDATE" then
-    debug_print("rt party changed")
-    if max(GetNumPartyMembers(),GetNumRaidMembers()) == 0 then
-      debug_print("rt group dropped")
-      group_dropped = true -- this might be an issue for single-member raid entries like flask making?
-    else
-      debug_print("not dropped")
-      group_dropped = false
-    end
-  elseif event == "ZONE_CHANGED_NEW_AREA" and IsInInstance() then
+  -- if event == "ZONE_CHANGED_NEW_AREA" and not IsInInstance() then
+  --   if not UnitIsGhost("player") then
+  --     debug_print("not a ghost and not in an instance")
+  --     InstanceTimersDB.in_instance[UnitName("player")] = nil
+  --   end
+  --   if max(GetNumPartyMembers(),GetNumRaidMembers()) == 0 then
+  --     debug_print("zc group dropped")
+  --     group_dropped = true -- this might be an issue for single-member raid entries like flask making?
+  --   end
+  -- elseif event == "RAID_TARGET_UPDATE" then
+  --   debug_print("rt party changed")
+  --   if max(GetNumPartyMembers(),GetNumRaidMembers()) == 0 then
+  --     debug_print("rt group dropped")
+  --     group_dropped = true -- this might be an issue for single-member raid entries like flask making?
+  --   else
+  --     debug_print("not dropped")
+  --     group_dropped = false
+  --   end
+  if event == "ZONE_CHANGED_NEW_AREA" and IsInInstance() then
     local zone_name = GetZoneText()
     local player = UnitName("player")
-    local had_instance = InstanceTimersDB.in_instance[player]
+    -- local had_instance = InstanceTimersDB.in_instance[player]
 
-    if not group_dropped and had_instance and had_instance == zone_name then
-      debug_print("doing previous save check")
-      -- find out if player was saved here already
-      local tz = tsize(InstanceTimersDB.db)
-      for i=1,tz do
-        local v = InstanceTimersDB.db[tz + 1 - i]
-        if v[1] == player then
-          if v[2] == zone_name then
-            return nil -- last instance was this one
-          else
-            break -- last instance wasn't this one
-          end
-        end
-      end
-    end
+    -- if not group_dropped and had_instance and had_instance == zone_name then
+    --   debug_print("doing previous save check")
+    --   -- find out if player was saved here already
+    --   local tz = tsize(InstanceTimersDB.db)
+    --   for i=1,tz do
+    --     local v = InstanceTimersDB.db[tz + 1 - i]
+    --     if v[1] == player then
+    --       if v[2] == zone_name then
+    --         return nil -- last instance was this one
+    --       else
+    --         break -- last instance wasn't this one
+    --       end
+    --     end
+    --   end
+    -- end
     debug_print("adding new timer")
-    InstanceTimersDB.in_instance[player] = zone_name
+    -- InstanceTimersDB.in_instance[player] = zone_name
     tinsert(InstanceTimersDB.db,{player,zone_name,time()})
     if InstanceTimersDB.announce then InstanceTimers:SetScript("OnUpdate", timedAnnounce) end
-  elseif event == "PLAYER_LEAVING_WORLD" then
-    local zone_name = GetZoneText()
-    -- save if the player is inside an instance, and which one if so
-    if IsInInstance() then
-      debug_print(zone_name)
-      InstanceTimersDB.in_instance[UnitName("player")] = zone_name
-    -- else
-    --   InstanceTimersDB.in_instance[UnitName("player")] = nil
-    end
   end
+  -- elseif event == "PLAYER_LEAVING_WORLD" then
+  --   local zone_name = GetZoneText()
+  --   -- save if the player is inside an instance, and which one if so
+  --   if IsInInstance() then
+  --     debug_print(zone_name)
+  --     InstanceTimersDB.in_instance[UnitName("player")] = zone_name
+  --   -- else
+  --   --   InstanceTimersDB.in_instance[UnitName("player")] = nil
+  --   end
+  -- end
 end
 
 local function Init()
