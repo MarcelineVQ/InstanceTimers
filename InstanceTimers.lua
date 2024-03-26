@@ -111,6 +111,13 @@ local was_ghost = false
 local in_group = false
 local group_dropped = false
 -- local just_logged_in = false
+
+-- potential zone-in
+local entering_world = false
+
+-- zone changed new area or and entering_world 
+-- meeting stone changed
+
 local function EventHandler()
   -- if event == "ZONE_CHANGED_NEW_AREA" and UnitIsGhost("player") then
     -- was_ghost = true
@@ -153,10 +160,12 @@ local function EventHandler()
   --     debug_print("not dropped")
   --     group_dropped = false
   --   end
-  if event == "ZONE_CHANGED_NEW_AREA" and IsInInstance() then
+    if event == "PLAYER_ENTERING_WORLD" and IsInInstance() then
+    -- if entering_world and event == "ZONE_CHANGED_NEW_AREA" or event == "ZONE_CHANGED_INDOORS" and IsInInstance() then
     local zone_name = GetZoneText()
     local player = UnitName("player")
     -- local had_instance = InstanceTimersDB.in_instance[player]
+    entering_world = false
 
     -- if not group_dropped and had_instance and had_instance == zone_name then
     --   debug_print("doing previous save check")
@@ -177,6 +186,12 @@ local function EventHandler()
     -- InstanceTimersDB.in_instance[player] = zone_name
     tinsert(InstanceTimersDB.db,{player,zone_name,time()})
     if InstanceTimersDB.announce then InstanceTimers:SetScript("OnUpdate", timedAnnounce) end
+  -- elseif event == "PLAYER_ENTERING_WORLD" and IsInInstance() then
+    -- entering_world = true
+    -- its_print("enterworld_wasinside")
+  -- elseif event == "PLAYER_ENTERING_WORLD" then
+  --   entering_world = true
+  --   its_print("enterworld")
   end
   -- elseif event == "PLAYER_LEAVING_WORLD" then
   --   local zone_name = GetZoneText()
@@ -194,8 +209,10 @@ local function Init()
   if event == "ADDON_LOADED" and arg1 == "InstanceTimers" then
     InstanceTimers:UnregisterEvent("ADDON_LOADED")
     if not InstanceTimersDB then
+      its_print("init empty")
       InstanceTimersDB = defaults -- initialize default settings
     else -- or check that we only have the current settings format
+      its_print("init settingscheck")
       local s = {}
       for k,v in pairs(defaults) do
         if InstanceTimersDB[k] == nil -- specifically nil
@@ -233,12 +250,14 @@ local function handleCommands(msg,editbox)
 end
 
 InstanceTimers:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+InstanceTimers:RegisterEvent("ZONE_CHANGED_INDOORS")
+-- InstanceTimers:RegisterEvent("MEETINGSTONE_CHANGED")
 InstanceTimers:RegisterEvent("PLAYER_ENTERING_WORLD")
-InstanceTimers:RegisterEvent("RAID_TARGET_UPDATE")
-InstanceTimers:RegisterEvent("UPDATE_INSTANCE_INFO")
-InstanceTimers:RegisterEvent("PLAYER_LEAVING_WORLD")
-InstanceTimers:RegisterEvent("PLAYER_LOGIN")
-InstanceTimers:RegisterEvent("CHAT_MSG_SYSTEM")
+-- InstanceTimers:RegisterEvent("RAID_TARGET_UPDATE")
+-- InstanceTimers:RegisterEvent("UPDATE_INSTANCE_INFO")
+-- InstanceTimers:RegisterEvent("PLAYER_LEAVING_WORLD")
+-- InstanceTimers:RegisterEvent("PLAYER_LOGIN")
+-- InstanceTimers:RegisterEvent("CHAT_MSG_SYSTEM")
 InstanceTimers:RegisterEvent("ADDON_LOADED")
 InstanceTimers:SetScript("OnEvent", Init)
 
