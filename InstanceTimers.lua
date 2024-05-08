@@ -1,4 +1,5 @@
 local DEBUG = false
+local wasDead = false
 
 local function its_print(msg)
     DEFAULT_CHAT_FRAME:AddMessage(msg)
@@ -77,8 +78,8 @@ local function timedAnnounce()
     delay = 0
     clearExpired(time(),3600)
     local limit = 5 - tsize(InstanceTimersDB.db)
-    -- if we have none locked or we just zonechanged from death why mention it
-    if InstanceTimersDB.announce and limit < 5 and not UnitIsGhost("player") then
+    -- if we have none locked why mention it
+    if InstanceTimersDB.announce and limit < 5 then
       its_print(limit.." instance lockouts remain, oldest expires in: "
         ..date("%Mm%Ss",3600-(time() - InstanceTimersDB.db[1][3])))
     end
@@ -88,15 +89,21 @@ end
 
 local function EventHandler()
   -- keeping this dumb, events are very unreliable in 1.12, we re-update the zone info using timedAnnounce to be accurate
-  if event == "PLAYER_ENTERING_WORLD" and IsInInstance() then
-    local zone_name = GetZoneText()
-    local player = UnitName("player")
-    local now = time()
-
-    debug_print("adding new timer")
-    tinsert(InstanceTimersDB.db,{player,zone_name,now})
-    -- if InstanceTimersDB.announce then InstanceTimers:SetScript("OnUpdate", timedAnnounce) end
-    InstanceTimers:SetScript("OnUpdate", timedAnnounce)
+  if event == "PLAYER_ENTERING_WORLD" then
+    if IsInInstance() then
+        if not wasDead then
+            local zone_name = GetZoneText()
+            local player = UnitName("player")
+            local now = time()
+        
+            debug_print("adding new timer")
+            tinsert(InstanceTimersDB.db,{player,zone_name,now})
+        end
+        -- if InstanceTimersDB.announce then InstanceTimers:SetScript("OnUpdate", timedAnnounce) end
+        InstanceTimers:SetScript("OnUpdate", timedAnnounce)
+    else
+        wasDead = UnitIsGhost("player")
+    end
   end
 end
 
