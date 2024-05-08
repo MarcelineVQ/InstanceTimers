@@ -1,5 +1,5 @@
 local DEBUG = false
-local wasDead = false
+local wasDead = UnitIsGhost("player")
 
 local function its_print(msg)
     DEFAULT_CHAT_FRAME:AddMessage(msg)
