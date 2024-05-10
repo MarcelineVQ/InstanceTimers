@@ -17,6 +17,7 @@ local defaults = {
   announce = true,
   db = {},
   in_instance = {},
+  last_place = nil
 }
 
 local function tsize(table)
@@ -86,17 +87,24 @@ local function timedAnnounce()
   end
 end
 
+
 local function EventHandler()
   -- keeping this dumb, events are very unreliable in 1.12, we re-update the zone info using timedAnnounce to be accurate
-  if event == "PLAYER_ENTERING_WORLD" and IsInInstance() then
-    local zone_name = GetZoneText()
-    local player = UnitName("player")
-    local now = time()
+  if event == "PLAYER_ENTERING_WORLD" then
+    -- problem, /reload triggers a player entering world, need to store last location
+    -- this might also cover logging out and back into the same instance
+    if IsInInstance() and (last_place and not (last_place == zone_name)) then
+      local zone_name = GetZoneText()
+      local player = UnitName("player")
+      local now = time()
 
-    debug_print("adding new timer")
-    tinsert(InstanceTimersDB.db,{player,zone_name,now})
-    -- if InstanceTimersDB.announce then InstanceTimers:SetScript("OnUpdate", timedAnnounce) end
-    InstanceTimers:SetScript("OnUpdate", timedAnnounce)
+      debug_print("adding new timer")
+      tinsert(InstanceTimersDB.db,{player,zone_name,now})
+      -- if InstanceTimersDB.announce then InstanceTimers:SetScript("OnUpdate", timedAnnounce) end
+      InstanceTimers:SetScript("OnUpdate", timedAnnounce)
+    else
+      last_place = GetZoneText()
+    end
   end
 end
 
@@ -148,6 +156,7 @@ InstanceTimers:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 InstanceTimers:RegisterEvent("ZONE_CHANGED_INDOORS")
 -- InstanceTimers:RegisterEvent("MEETINGSTONE_CHANGED")
 InstanceTimers:RegisterEvent("PLAYER_ENTERING_WORLD")
+-- InstanceTimers:RegisterEvent("PLAYER_LEAVING_WORLD")
 -- InstanceTimers:RegisterEvent("RAID_TARGET_UPDATE")
 -- InstanceTimers:RegisterEvent("UPDATE_INSTANCE_INFO")
 -- InstanceTimers:RegisterEvent("PLAYER_LEAVING_WORLD")
