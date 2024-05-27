@@ -88,6 +88,7 @@ local function timedAnnounce()
   end
 end
 
+
 local wasDead = UnitIsGhost("player")
 local function EventHandler()
   -- keeping this dumb, events are very unreliable in 1.12, we re-update the zone info using timedAnnounce to be accurate
