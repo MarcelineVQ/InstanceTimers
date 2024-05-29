@@ -16,8 +16,8 @@ local defaults = {
   enabled = true,
   announce = true,
   db = {},
-  in_instance = {},
   last_place = nil,
+  wasDead = false,
 }
 
 local function tsize(table)
@@ -88,9 +88,24 @@ local function timedAnnounce()
   end
 end
 
+-- die in zg
+-- release
+-- zg: notin wasnotded nowded
+-- stv: notin wasded nowded
+-- enter zg
+-- stv: ininstance wasded alive -- this is the one that fires the timer
+-- zg: insintance wasnotdead alive
 
-local wasDead = UnitIsGhost("player")
+-- die in zg
+-- release
+-- zg: notin wasnotded nowded
+-- stv: notin wasded nowded
+-- res instead of enter zg
+-- stv: ininstance wasded alive -- this is the one that fires the timer
+-- zg: insintance wasnotdead alive
+
 local function EventHandler()
+  debug_print(GetZoneText() .. (IsInInstance() and " ininstance " or " notin ") .. "_ wasded: " .. (wasDead and "wasded" or "wasnotded").." _ status: "..(UnitIsGhost("player") and "ded" or "alive"))
   -- keeping this dumb, events are very unreliable in 1.12, we re-update the zone info using timedAnnounce to be accurate
   if event == "PLAYER_ENTERING_WORLD" then
     -- problem, /reload triggers a player entering world, need to store last location
@@ -106,7 +121,13 @@ local function EventHandler()
       InstanceTimers:SetScript("OnUpdate", timedAnnounce)
     else
       last_place = GetZoneText()
-      wasDead = UnitIsGhost("player")
+      if not IsInInstance() and wasDead and not UnitIsDead("player") then
+        -- you have ressurected outside
+        debug_print("you have ressurected outside")
+        wasDead = false
+      else
+        wasDead = UnitIsGhost("player")
+      end
     end
   end
 end
